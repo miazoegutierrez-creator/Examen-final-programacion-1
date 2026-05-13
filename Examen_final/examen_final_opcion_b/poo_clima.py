@@ -69,6 +69,7 @@ class DiaClimatico(RegistroMeteorologico):
             float: temp_max - temp_min
         """
         # TU CÓDIGO AQUÍ
+        return self.temp_max - self.temp_min
 
     def temp_media(self):
         """
@@ -78,6 +79,7 @@ class DiaClimatico(RegistroMeteorologico):
             float: promedio de temp_max y temp_min
         """
         # TU CÓDIGO AQUÍ
+        return (self.temp_max + self.temp_min) / 2
 
     def es_caluroso(self):
         """
@@ -89,6 +91,7 @@ class DiaClimatico(RegistroMeteorologico):
             bool: True si temp_max > 28, False en caso contrario
         """
         # TU CÓDIGO AQUÍ
+        return self.temp_max > 28
 
     def clasificar(self):
         """
@@ -105,7 +108,14 @@ class DiaClimatico(RegistroMeteorologico):
         Retorna:
             str: categoría del día
         """
-        # TU CÓDIGO AQUÍ
+        if self.precipitacion < 1:
+            return 'Seco'
+        elif self.precipitacion < 5:
+            return 'Lluvia ligera'
+        elif self.precipitacion < 20:
+            return 'Lluvia moderada'
+        else:
+            return 'Lluvia intensa'
 
     def descripcion(self):
         """
@@ -121,6 +131,8 @@ class DiaClimatico(RegistroMeteorologico):
             str: descripción formateada del día
         """
         # TU CÓDIGO AQUÍ
+        return (f"{self.fecha} | max={self.temp_max:.1f}°C  min={self.temp_min:.1f}°C | "
+                f"{self.clasificar()} | Viento: {self.viento_max:.1f} km/h")
 
     def __str__(self):
         return self.descripcion()
@@ -170,6 +182,11 @@ class RegistroAnual:
         if not self._dias:
             return None
         # TU CÓDIGO AQUÍ
+        dia_caluroso = self._dias[0]
+        for dia in self._dias:
+            if dia.temp_max > dia_caluroso.temp_max:
+                dia_caluroso = dia
+        return dia_caluroso 
 
     def dias_por_tipo(self, tipo):
         """
@@ -185,6 +202,11 @@ class RegistroAnual:
             list: lista de objetos DiaClimatico filtrada (puede estar vacía)
         """
         # TU CÓDIGO AQUÍ
+        dias_filtrados = []
+        for dia in self._dias:
+            if dia.clasificar() == tipo:
+                dias_filtrados.append(dia)
+        return dias_filtrados
 
     def temp_promedio_anual(self):
         """
@@ -200,6 +222,11 @@ class RegistroAnual:
         if not self._dias:
             return 0
         # TU CÓDIGO AQUÍ
+        suma_temp_max = 0
+        for dia in self._dias:
+            suma_temp_max += dia.temp_max
+        promedio = suma_temp_max / len(self._dias)
+        return round(promedio, 1)
 
     def resumen(self):
         """
@@ -215,3 +242,15 @@ class RegistroAnual:
             tipos = ['Seco', 'Lluvia ligera', 'Lluvia moderada', 'Lluvia intensa']
         """
         # TU CÓDIGO AQUÍ
+        print(f"Registro anual de {self.ciudad} - {self.anio}")
+        print(f"Total de días registrados: {len(self)}")    
+        dia_caluroso = self.dia_mas_caluroso()
+        if dia_caluroso:   
+            print(f"Día más caluroso: {dia_caluroso.fecha} con {dia_caluroso.temp_max:.1f}°C")
+        else:
+            print("No hay datos para determinar el día más caluroso.")  
+        print(f"Temperatura máxima promedio: {self.temp_promedio_anual():.1f}°C")
+        tipos = ['Seco', 'Lluvia ligera', 'Lluvia moderada', 'Lluvia intensa']
+        for tipo in tipos:
+            cantidad = len(self.dias_por_tipo(tipo))
+            print(f"Días de tipo '{tipo}': {cantidad}") 
